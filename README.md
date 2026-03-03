@@ -160,7 +160,7 @@ repod keeps the same simple API philosophy but replaces the internals:
 ## Development
 
 ```bash
-uv sync --group dev
+uv sync --dev
 uv run ruff check .
 uv run ruff format --check .
 uv run ty check
