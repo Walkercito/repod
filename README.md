@@ -1,10 +1,12 @@
-# repod -- multiplayer networking library for Python games
-
-[![Python 3.12+](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2FWalkercito%2Frepod%2Fmain%2Fpyproject.toml&logo=python&logoColor=white&label=Python)](https://www.python.org/)
-[![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![msgpack](https://img.shields.io/badge/serialization-msgpack-orange)](https://msgpack.org/)
-[![asyncio](https://img.shields.io/badge/I%2FO-asyncio-purple)](https://docs.python.org/3/library/asyncio.html)
+<p align="center">
+  <img src="social-card.png" alt="repod — Networking library for multiplayer games in Python" />
+  <br><br>
+  <a href="https://www.python.org/"><img src="https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2FWalkercito%2Frepod%2Fmaster%2Fpyproject.toml&logo=python&logoColor=white&label=Python" alt="Python 3.12+"></a>
+  <a href="https://www.gnu.org/licenses/lgpl-3.0"><img src="https://img.shields.io/badge/License-LGPL_v3-blue.svg" alt="License: LGPL v3"></a>
+  <a href="https://github.com/astral-sh/ruff"><img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff"></a>
+  <a href="https://msgpack.org/"><img src="https://img.shields.io/badge/serialization-msgpack-orange" alt="msgpack"></a>
+  <a href="https://docs.python.org/3/library/asyncio.html"><img src="https://img.shields.io/badge/I%2FO-asyncio-purple" alt="asyncio"></a>
+</p>
 
 repod is a networking library designed to make it easy to write multiplayer games in Python. It uses `asyncio` and `msgpack` to asynchronously serialize network events and arbitrary data structures, and delivers them to your high-level classes through simple callback methods.
 
@@ -137,7 +139,7 @@ This works with any game framework that has a main loop: pygame, raylib, arcade,
 
 ## Documentation
 
-Full tutorial and API reference: **[docs/DOCS.md](docs/DOCS.md)**
+Full tutorial and API reference: **[walkercito.github.io/repod](https://walkercito.github.io/repod)**
 
 ## Why not PodSixNet?
 
@@ -167,7 +169,7 @@ uv run pytest tests/ -v
 
 ## License
 
-Copyright Walker Gonzales, 2025.
+Copyright Walkercito, 2026.
 
 repod is licensed under the terms of the **LGPL v3.0** or later. See the [COPYING](COPYING) file for details.
 

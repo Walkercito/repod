@@ -12,3 +12,6 @@ uv.lock
 
 # Secrets
 .env
+
+# Internal docs
+docs/deploy.md
