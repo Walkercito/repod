@@ -1,199 +1,174 @@
-*Note:* this project uses deprecated libraries ([#46](https://github.com/chr15m/PodSixNet/issues/46)) and isn't actively maintained any more.
+# repod -- multiplayer networking library for Python games
 
-PodSixNet - lightweight multiplayer networking library for Python games
------------------------------------------------------------------------
+[![Python 3.12+](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2FWalkercito%2Frepod%2Fmain%2Fpyproject.toml&logo=python&logoColor=white&label=Python)](https://www.python.org/)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![msgpack](https://img.shields.io/badge/serialization-msgpack-orange)](https://msgpack.org/)
+[![asyncio](https://img.shields.io/badge/I%2FO-asyncio-purple)](https://docs.python.org/3/library/asyncio.html)
 
-PodSixNet is a lightweight network layer designed to make it easy to write multiplayer games in Python. It uses Python's built in asyncore library and rencode.py (included) to asynchronously serialise network events and arbitrary data structures, and deliver them to your high level classes through simple callback methods.
+repod is a networking library designed to make it easy to write multiplayer games in Python. It uses `asyncio` and `msgpack` to asynchronously serialize network events and arbitrary data structures, and delivers them to your high-level classes through simple callback methods.
 
-Each class within your game client which wants to receive network events, subclasses the ConnectionListener class and then implements `Network_*` methods to catch specific user-defined events from the server. You don't have to wait for buffers to fill, or check sockets for waiting data or anything like that, just do `connection.Pump()` once per game loop and the library will handle everything else for you, passing off events to all classes that are listening. Sending data back to the server is just as easy, using `connection.Send(mydata)`. Likewise on the server side, events are propagated to `Network_*` method callbacks and data is sent back to clients with the `client.Send(mydata)` method.
+It is a modernized fork of [PodSixNet](https://github.com/chr15m/PodSixNet). Same ideas -- channels, action-based message dispatch, synchronous pump loops -- but rebuilt from scratch for Python 3.12+ with async I/O, binary msgpack serialization, and full type annotations. PodSixNet was built on `asyncore`, which was removed in Python 3.12; repod is the drop-in replacement.
 
-The [PodSixNet mailing list](http://groups.google.com/group/podsixnet) is good for getting help from other users.
+Each class within your game client which wants to receive network events subclasses `ConnectionListener` and implements `Network_*` methods to catch specific events from the server. You don't have to wait for buffers to fill, or check sockets for waiting data or anything like that -- just call `client.pump()` once per game loop and the library handles everything else, passing off events to your listener. Sending data back to the server is just as easy with `client.send(mydata)`. On the server side, events are propagated to `Network_*` callbacks on your `Channel` subclass, and data is sent back to clients with `channel.send(mydata)`.
 
-For users of the Construct game making environment for Windows, there is a tutorial on doing multiplayer networking with PodSixNet, [here](http://www.scirra.com/forum/viewtopic.php?f=8&t=6299). Thanks to Dave Chabo for contributing this tutorial.
+## Install
 
-Here is [another tutorial by Julian Meyer](http://www.raywenderlich.com/38732/multiplayer-game-programming-for-teens-with-python).
+```bash
+pip install repod
+```
 
-Install
--------
+Or with [uv](https://docs.astral.sh/uv/):
 
-`pip install PodSixNet`
+```bash
+uv add repod
+```
 
-or
-
-`easy_install PodSixNet`
-
-
-### From source
-
-First make sure you have [Python](http://python.org/) 2.4 or greater installed (python 3 also works).
-
-Next you'll want to get the PodSixNet source.
-
-The module is found inside a subdirectory called PodSixNet within the top level folder. There's an `__init__.py` inside there, so you can just copy or symlink the PodSixNet sub-directory into your own project and then do `import PodSixNet`, or else you can run `sudo python setup.py install` to install PodSixNet into your Python path. Use `sudo python setup.py develop` if you want to stay up to date with the cutting edge and still be able to svn/bzr up every now and then.
-
-By default PodSixNet uses a binary encoder to transfer data over the network, but it can optionally use the [JSON](http://json.org/) format or other formats supported by a serialiser which has 'dumps' and 'loads' methods. If you want to serialise your data using JSON you can change the first line of Channel.py to 'from simplejson import dumps, loads' or use the built-in json library in Python 2.6 or higher. This will allow you to write game clients in languages that can't read the 'rencode' binary format, such as Javascript.
-
-Examples
---------
+## Examples
 
 Chat example:
 
- * `python examples/ChatServer.py`
- * and a couple of instances of `python examples/ChatClient.py`
+- `python examples/chat_server.py`
+- and a couple of instances of `python examples/chat_client.py`
 
-Whiteboard example:
+Whiteboard example (requires pygame-ce):
 
- * `python examples/WhiteboardServer.py`
- * and a couple of instances of `python examples/WhiteboardClient.py`
+- `python examples/whiteboard_server.py`
+- and a couple of instances of `python examples/whiteboard_client.py`
 
-LagTime example (measures round-trip time from the server to the client):
+LagTime example (measures round-trip time from server to client):
 
- * `python examples/LagTimeServer.py`
- * and a couple of instances of `python examples/LagTimeClient.py`
+- `python examples/lag_time_server.py`
+- and a couple of instances of `python examples/lag_time_client.py`
 
-Quick start - Server
---------------------
+## Quick start -- Server
 
-You will need to subclass two classes in order to make your own server. Each time a client connects, a new Channel based class will be created, so you should subclass Channel to make your own server-representation-of-a-client class like this:
+You need to subclass two classes to make your own server. Each time a client connects, a new `Channel` instance is created, so you subclass `Channel` to make your server-side representation of a client:
 
 ```python
-from PodSixNet.Channel import Channel
+from repod import Channel
 
 class ClientChannel(Channel):
 
-    def Network(self, data):
-        print data
+    def network_received(self, data: dict) -> None:
+        print(data)
 
-    def Network_myaction(self, data):
-        print "myaction:", data
+    def Network_myaction(self, data: dict) -> None:
+        print("myaction:", data)
 ```
 
-Whenever the client does `connection.Send(mydata)`, the `Network()` method will be called. The method `Network_myaction()` will only be called if your data has a key called 'action' with a value of "myaction". In other words if it looks something like this:
+Whenever the client sends data, the `network_received()` fallback is called if no specific handler exists. The method `Network_myaction()` is only called if your data has an `"action"` key with a value of `"myaction"`. In other words, if the data looks like:
 
 ```python
-data = {"action": "myaction", "blah": 123, ... }
+{"action": "myaction", "blah": 123, ...}
 ```
 
-Next you need to subclass the Server class like this:
+Next, subclass `Server`:
 
 ```python
-    from PodSixNet.Server import Server
-    
-    class MyServer(Server):
-        
-        channelClass = ClientChannel
-        
-        def Connected(self, channel, addr):
-            print 'new connection:', channel
+from repod import Server
+
+class MyServer(Server):
+    channel_class = ClientChannel
+
+    def on_connect(self, channel, addr):
+        print("new connection:", channel)
 ```
 
-Set `channelClass` to the channel class that you created above. The method `Connected()` will be called whenever a new client connects to your server. See the example servers for an idea of what you might do each time a client connects. You need to call `Server.Pump()` every now and then, probably once per game loop. For example:
+Set `channel_class` to the Channel subclass you created above. The `on_connect()` method is called whenever a new client connects.
+
+To run the server, call `launch()`:
 
 ```python
-    myserver = MyServer()
-    while True:
-        myserver.Pump()
-        sleep(0.0001)
+MyServer(host="0.0.0.0", port=5071).launch()
 ```
 
-When you want to send data to a specific client/channel, use the Send method of the Channel class:
+That's it. One line. `launch()` handles the event loop internally and catches `Ctrl+C` for clean shutdown.
+
+When you want to send data to a specific client, use the `send` method on the Channel:
 
 ```python
-channel.Send({"action": "hello", "message": "hello client!"})
+channel.send({"action": "hello", "message": "hello client!"})
 ```
 
-Quick start - Client
---------------------
+## Quick start -- Client
 
-To have a client connect to your new server, you should use the Connection module. See `pydoc Connection` for more details, but here's a summary:
-
-`Connection.connection` is a singleton Channel which connects to the server. You'll only have one of these in your game code, and you'll use it to connect to the server and send messages to the server.
+To connect to your server, subclass `ConnectionListener`:
 
 ```python
-from PodSixNet.Connection import connection
+import time
+from repod import ConnectionListener
 
-# connect to the server - optionally pass hostname and port like: ("mccormick.cx", 31425)
-connection.Connect()
+class MyClient(ConnectionListener):
 
-connection.Send({"action": "myaction", "blah": 123, "things": [3, 4, 3, 4, 7]})
+    def Network_connected(self, data: dict) -> None:
+        print("connected to the server")
+
+    def Network_error(self, data: dict) -> None:
+        print("error:", data["error"])
+
+    def Network_disconnected(self, data: dict) -> None:
+        print("disconnected from the server")
+
+    def Network_myaction(self, data: dict) -> None:
+        print("myaction:", data)
 ```
 
-You'll also need to put the following code once somewhere in your game loop:
+Network events are received by `Network_*` callback methods. Replace `*` with the value of the `"action"` key you want to catch. The `connected`, `disconnected`, and `error` events are sent automatically by repod.
+
+Connect and pump:
 
 ```python
-connection.Pump()
+client = MyClient()
+client.connect("localhost", 5071)
+
+while True:
+    client.pump()
+    time.sleep(0.01)
 ```
 
-Any time you have an object in your game which you want to receive messages from the server, subclass `ConnectionListener`. For example:
+Call `pump()` once per game loop and repod handles everything -- reading from the socket, deserializing, and dispatching to your `Network_*` methods. Sending data to the server:
 
 ```python
-    from PodSixNet.Connection import ConnectionListener
-    
-    class MyNetworkListener(ConnectionListener):
-    
-        def Network(self, data):
-            print 'network data:', data
-        
-        def Network_connected(self, data):
-            print "connected to the server"
-        
-        def Network_error(self, data):
-            print "error:", data['error'][1]
-        
-        def Network_disconnected(self, data):
-            print "disconnected from the server"
-        
-        def Network_myaction(data):
-            print "myaction:", data
+client.send({"action": "myaction", "blah": 123, "things": [3, 4, 3, 4, 7]})
 ```
 
-Just like in the server case, the network events are received by `Network_*` callback methods, where you should replace '*' with the value in the 'action' key you want to catch. You can implement as many or as few of the above as you like. For example, NetworkGUI would probably only want to listen for the `_connected`, `_disconnected`, and `_error` network events. The data for `_error` always comes in the form of network exceptions, like (111, 'Connection refused') - these are passed straight from the socket layer and are standard socket errors.
+This works with any game framework that has a main loop: pygame, raylib, arcade, pyglet, etc. Just drop `pump()` into the loop.
 
-Another class might implement custom methods like `Network_myaction()`, which will receive any data that gets sent from the server with an 'action' key that has the name 'myaction'. For example, the server might send a message with the number of players currently connected like so:
+## Documentation
 
-```python
-channel.Send({"action": "numplayers", "players": 10})
+Full tutorial and API reference: **[docs/DOCS.md](docs/DOCS.md)**
+
+## Why not PodSixNet?
+
+PodSixNet was great for its time, but:
+
+- It's built on `asyncore`, which was **removed in Python 3.12**
+- It uses `rencode` / custom delimiter-based framing (`\0---\0`), which is fragile with binary data
+- It has no type annotations, no modern tooling support
+- It is no longer maintained ([chr15m/PodSixNet#46](https://github.com/chr15m/PodSixNet/issues/46))
+
+repod keeps the same simple API philosophy but replaces the internals:
+
+- **asyncio** instead of asyncore
+- **msgpack** with length-prefix framing instead of rencode with delimiter framing
+- **Full type annotations** with PEP 695 generics (optional)
+- **Python 3.12+** only -- no compatibility shims
+
+## Development
+
+```bash
+uv sync --group dev
+uv run ruff check .
+uv run ruff format --check .
+uv run ty check
+uv run pytest tests/ -v
 ```
 
-And the listener would look like this:
+## License
 
-```python
-    from PodSixNet.Connection import ConnectionListener
-    
-    class MyPlayerListener(ConnectionListener):
-    
-        def Network_numplayers(data):
-            # update gui element displaying the number of currently connected players
-            print data['players']
-```
+Copyright Walker Gonzales, 2025.
 
-You can subclass `ConnectionListener` as many times as you like in your application, and every class you make which subclasses it will receive the network events via named Network callbacks. You should call the `Pump()` method on each object you instantiate once per game loop:
+repod is licensed under the terms of the **LGPL v3.0** or later. See the [COPYING](COPYING) file for details.
 
-```python
-    gui = MyPlayerListener()
-    while 1:
-        connection.Pump()
-        gui.Pump()
-```
-
-License
--------
-
-Copyright [Chris McCormick](http://mccormick.cx/), 2009-2015.
-
-PodSixNet is licensed under the terms of the LGPL v3.0 or higher. See the file called [COPYING](COPYING) for details.
-
-This basically means that you can use it in most types of projects (commercial or otherwise), but if you make changes to the PodSixNet code you must make the modified code available with the distribution of your software. Hopefully you'll tell us about it so we can incorporate your changes. I am not a lawyer, so please read the license carefully to understand your rights with respect to this code.
-
-Why not use Twisted instead?
----------------------------
-
-Twisted is a fantastic library for writing robust network code. I have used it in several projects in the past, and it was quite nice to work with. That said, Twisted:
-
-* wants to steal the mainloop
-* is bloated not KISS (it implements many many different protocols)
-* has a weird template launching language when Python should do just fine
-* is not written 100% for the specfic use-case of multiplayer games
-
-These are some of the reasons why I decided to write a library that is lightweight, has no dependencies except Python, and is dedicated 100% to the task of multiplayer game networking.
-
+This is the same license as [PodSixNet](https://github.com/chr15m/PodSixNet), from which repod is forked. In short: you can use repod in any project (commercial or otherwise), but if you modify the repod library code itself, you must make the modified source available.

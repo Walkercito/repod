@@ -1,8 +1,14 @@
-.*.swp
-PodSixNet.egg-info
-*.pyc
-*.sublime-project
-*.sublime-workspace
-MANIFEST
-dist
-version.py
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+uv.lock
+
+# Secrets
+.env
