@@ -15,13 +15,13 @@ Each class within your game client which wants to receive network events subclas
 ## Install
 
 ```bash
-pip install repod
+pip install repodnet
 ```
 
 Or with [uv](https://docs.astral.sh/uv/):
 
 ```bash
-uv add repod
+uv add repodnet
 ```
 
 ## Examples
