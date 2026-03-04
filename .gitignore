@@ -13,5 +13,8 @@ uv.lock
 # Secrets
 .env
 
+# MkDocs build output
+site/
+
 # Internal docs
 docs/deploy.md
