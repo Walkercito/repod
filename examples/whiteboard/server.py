@@ -1,4 +1,4 @@
-"""Whiteboard server -- shared drawing canvas."""
+"""Whiteboard server -- shared drawing canvas with color and thickness."""
 
 from __future__ import annotations
 
@@ -11,19 +11,12 @@ class WhiteboardChannel(Channel["WhiteboardServer"]):
     """Channel representing a connected drawing client."""
 
     id: str
-    color: list[int]
-    lines: list[list[tuple[int, int]]]
+    lines: list[dict]
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.id = str(self.server.next_id())
-        color_index = int(self.id)
-        self.color = [
-            (color_index + 1) % 3 * 84,
-            (color_index + 2) % 3 * 84,
-            (color_index + 3) % 3 * 84,
-        ]
-        self.lines = []
+        self.lines: list[dict] = []
 
     def _relay(self, data: dict) -> None:
         """Relay data to all clients, tagging it with this channel's id."""
@@ -34,14 +27,26 @@ class WhiteboardChannel(Channel["WhiteboardServer"]):
         self.server.del_player(self)
 
     def Network_startline(self, data: dict) -> None:
-        self.lines.append([data["point"]])
+        self.lines.append(
+            {
+                "points": [data["point"]],
+                "color": data.get("color", [0, 0, 0]),
+                "thickness": data.get("thickness", 3),
+            }
+        )
         self._relay(data)
 
     def Network_drawpoint(self, data: dict) -> None:
         if not self.lines:
-            self.lines.append([data["point"]])
+            self.lines.append(
+                {
+                    "points": [data["point"]],
+                    "color": data.get("color", [0, 0, 0]),
+                    "thickness": data.get("thickness", 3),
+                }
+            )
         else:
-            self.lines[-1].append(data["point"])
+            self.lines[-1]["points"].append(data["point"])
         self._relay(data)
 
 
@@ -71,7 +76,7 @@ class WhiteboardServer(Server[WhiteboardChannel]):
         player.send(
             {
                 "action": "initial",
-                "lines": {p.id: {"color": p.color, "lines": p.lines} for p in self.players},
+                "lines": {p.id: {"lines": p.lines} for p in self.players},
             }
         )
         self._send_players()
@@ -87,7 +92,7 @@ class WhiteboardServer(Server[WhiteboardChannel]):
         self.relay(
             {
                 "action": "players",
-                "players": {p.id: p.color for p in self.players},
+                "count": len(self.players),
             }
         )
 

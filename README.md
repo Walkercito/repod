@@ -28,20 +28,27 @@ uv add repodnet
 
 ## Examples
 
-Chat example:
+Each example lives in its own folder under `examples/` with a `server.py` and `client.py`.
 
-- `python examples/chat_server.py`
-- and a couple of instances of `python examples/chat_client.py`
+Chat:
 
-Whiteboard example (requires pygame-ce):
+- `python examples/chat/server.py`
+- `python examples/chat/client.py`
 
-- `python examples/whiteboard_server.py`
-- and a couple of instances of `python examples/whiteboard_client.py`
+Whiteboard (requires pygame-ce):
 
-LagTime example (measures round-trip time from server to client):
+- `python examples/whiteboard/server.py`
+- `python examples/whiteboard/client.py`
 
-- `python examples/lag_time_server.py`
-- and a couple of instances of `python examples/lag_time_client.py`
+Tag game (requires raylib):
+
+- `python examples/tag/server.py`
+- `python examples/tag/client.py`
+
+Latency measurement:
+
+- `python examples/lag_time/server.py`
+- `python examples/lag_time/client.py`
 
 ## Quick start -- Server
 

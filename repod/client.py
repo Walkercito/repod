@@ -40,7 +40,10 @@ import threading
 from typing import Any
 
 from repod.constants import DEFAULT_HOST, DEFAULT_PORT, READ_BUFFER_SIZE
+from repod.logconfig import get_logger
 from repod.protocol import encode, read_message
+
+log = get_logger(__name__)
 
 
 class Client:
@@ -116,8 +119,8 @@ class Client:
         asyncio.set_event_loop(self._loop)
         try:
             self._loop.run_until_complete(self._network_task())
-        except Exception as e:
-            print(f"Network thread error: {e}", flush=True)
+        except Exception as exc:
+            log.error("network_thread_error", error=str(exc))
         finally:
             self._loop.close()
 
@@ -133,9 +136,16 @@ class Client:
                     sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
 
             self._closed = False
+            log.info("connected", host=self.address[0], port=self.address[1])
             self._receive_queue.put({"action": "connected"})
             self._receive_queue.put({"action": "socketConnect"})
         except Exception as e:
+            log.error(
+                "connection_failed",
+                host=self.address[0],
+                port=self.address[1],
+                error=str(e),
+            )
             self._receive_queue.put({"action": "error", "error": str(e)})
             return
 
@@ -220,6 +230,7 @@ class ConnectionListener:
             host: Server hostname or IP address.
             port: Server port number.
         """
+        log.info("connecting", host=host, port=port)
         self._connection = Client(host, port)
         self._connection.start_background()
 
@@ -248,8 +259,10 @@ class ConnectionListener:
             method_name = f"Network_{action}"
             handler = getattr(self, method_name, None)
             if handler is not None:
+                log.debug("message_dispatched", action=action)
                 handler(data)
             else:
+                log.debug("message_unhandled", action=action)
                 self.network_received(data)
 
     def send(self, data: dict[str, Any]) -> int:

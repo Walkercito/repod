@@ -1,5 +1,9 @@
 # repod
 
+<div align="center">
+  <img src="assets/social-card.png" alt="repod" width="720" />
+</div>
+
 **Networking library for multiplayer games in Python.**
 
 ---

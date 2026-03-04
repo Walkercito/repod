@@ -85,7 +85,7 @@ def decode(data: bytes) -> dict:
         >>> decode(raw)
         {'action': 'hello'}
     """
-    return msgpack.unpackb(data, raw=False)
+    return msgpack.unpackb(data, raw=False, strict_map_key=False)
 
 
 def read_message(stream: bytes) -> tuple[dict | None, int]:
@@ -121,4 +121,4 @@ def read_message(stream: bytes) -> tuple[dict | None, int]:
         return None, 0
 
     payload = stream[HEADER_SIZE:total_size]
-    return msgpack.unpackb(payload, raw=False), total_size
+    return msgpack.unpackb(payload, raw=False, strict_map_key=False), total_size

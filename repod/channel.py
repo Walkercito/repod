@@ -22,8 +22,13 @@ import contextlib
 import socket
 from typing import TYPE_CHECKING, Any
 
+from repod.logconfig import get_logger
+
 if TYPE_CHECKING:
     from repod.server import Server
+
+
+log = get_logger(__name__)
 
 
 class Channel[S: Server]:
@@ -56,6 +61,10 @@ class Channel[S: Server]:
         self._address: tuple[str, int] = writer.get_extra_info("peername")
         self._server: S | None = server
         self._buffer = b""
+        self._loop: asyncio.AbstractEventLoop | None = None
+
+        with contextlib.suppress(RuntimeError):
+            self._loop = asyncio.get_running_loop()
 
         # Disable Nagle's algorithm for low-latency real-time communication.
         sock: socket.socket | None = writer.get_extra_info("socket")
@@ -91,6 +100,9 @@ class Channel[S: Server]:
         4-byte length prefix before being placed in the async send
         queue.
 
+        Thread-safe -- can be called from any thread, including the
+        main game loop thread when using :meth:`Server.start_background`.
+
         Args:
             data: Message dictionary.  Should contain an ``action`` key
                 to identify the message type on the receiver side.
@@ -104,7 +116,20 @@ class Channel[S: Server]:
         from repod.protocol import encode
 
         outgoing = encode(data)
-        self._send_queue.put_nowait(outgoing)
+
+        # If we have a captured event loop and it's running in a
+        # different thread, schedule the put via call_soon_threadsafe
+        # so the asyncio.Queue wakes up correctly.
+        loop = self._loop
+        if loop is not None and loop.is_running():
+            try:
+                loop.call_soon_threadsafe(self._send_queue.put_nowait, outgoing)
+            except RuntimeError:
+                # Loop closed.
+                return 0
+        else:
+            self._send_queue.put_nowait(outgoing)
+
         return len(outgoing)
 
     def on_connect(self) -> None:
@@ -129,7 +154,9 @@ class Channel[S: Server]:
         Args:
             error: The exception that was raised.
         """
-        print(f"Channel error: {error}")
+        log.error(
+            "channel_error", error=str(error), addr=f"{self._address[0]}:{self._address[1]}"
+        )
 
     def network_received(self, data: dict[str, Any]) -> None:
         """Fallback handler for messages with no specific handler.
@@ -155,8 +182,10 @@ class Channel[S: Server]:
         method_name = f"Network_{action}"
         handler = getattr(self, method_name, None)
         if handler is not None:
+            log.debug("message_dispatched", action=action)
             handler(data)
         else:
+            log.debug("message_unhandled", action=action)
             self.network_received(data)
 
     async def _write_loop(self) -> None:

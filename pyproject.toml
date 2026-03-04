@@ -1,6 +1,6 @@
 [project]
 name = "repodnet"
-version = "0.1.1"
+version = "0.1.2"
 description = "Modern async networking library for multiplayer games"
 readme = "README.md"
 license = "LGPL-3.0-or-later"
@@ -65,7 +65,8 @@ docs = [
 ]
 examples = [
     "pygame-ce>=2.5.7",
+    "raylib>=5.0.0.0",
 ]
 
 [tool.ty.analysis]
-allowed-unresolved-imports = ["pygame.**"]
+allowed-unresolved-imports = ["pygame.**", "pyray.**"]

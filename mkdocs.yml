@@ -47,6 +47,20 @@ markdown_extensions:
   - toc:
       permalink: true
 
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/Walkercito/repod
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/repodnet/
+  meta:
+    - property: og:image
+      content: https://walkercito.github.io/repod/assets/social-card.png
+    - property: og:image:width
+      content: "1200"
+    - property: og:image:height
+      content: "630"
+
 nav:
   - Home: index.md
   - Get Started:
@@ -58,7 +72,7 @@ nav:
     - Putting it together: tutorial/together.md
     - Broadcasting: tutorial/broadcasting.md
     - Connections: tutorial/connections.md
-    - Pygame integration: tutorial/pygame.md
+    - Integrations: tutorial/pygame.md
     - Background server: tutorial/background-server.md
     - Type-safe generics: tutorial/generics.md
     - Async API: tutorial/async-api.md
@@ -69,5 +83,6 @@ nav:
     - Client: reference/client.md
     - Protocol: reference/protocol.md
     - Constants: reference/constants.md
+    - Logging: reference/logging.md
     - Wire format: reference/wire-format.md
   - Examples: examples.md

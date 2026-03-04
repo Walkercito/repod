@@ -43,11 +43,18 @@ Client quick-start::
         time.sleep(0.01)
 """
 
+import logging
+
 from repod.channel import Channel
 from repod.client import Client, ConnectionListener
 from repod.constants import DEFAULT_HOST, DEFAULT_PORT
+from repod.logconfig import configure_logging
 from repod.protocol import decode, encode, read_message
 from repod.server import Server
+
+# Library best practice: NullHandler so no output unless the
+# application explicitly calls configure_logging().
+logging.getLogger("repod").addHandler(logging.NullHandler())
 
 __all__ = [
     "DEFAULT_HOST",
@@ -56,6 +63,7 @@ __all__ = [
     "Client",
     "ConnectionListener",
     "Server",
+    "configure_logging",
     "decode",
     "encode",
     "read_message",

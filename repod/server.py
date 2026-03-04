@@ -29,6 +29,9 @@ import threading
 from typing import Any
 
 from repod.channel import Channel
+from repod.logconfig import get_logger
+
+log = get_logger(__name__)
 
 
 class Server[C: Channel]:
@@ -78,7 +81,7 @@ class Server[C: Channel]:
             self.port,
         )
         addr = self._tcp_server.sockets[0].getsockname()
-        print(f"Server started on {addr[0]}:{addr[1]}")
+        log.info("server_started", host=addr[0], port=addr[1])
 
     async def run(self) -> None:
         """Run the server forever.
@@ -111,7 +114,7 @@ class Server[C: Channel]:
         try:
             asyncio.run(_main())
         except KeyboardInterrupt:
-            print("\nServer stopped.")
+            log.info("server_stopped")
 
     async def stop(self) -> None:
         """Stop the server and disconnect all clients."""
@@ -169,8 +172,8 @@ class Server[C: Channel]:
         loop.run_until_complete(self.start())
         try:
             loop.run_until_complete(self.run())
-        except Exception as e:
-            print(f"Background server error: {e}")
+        except Exception as exc:
+            log.error("background_server_error", error=str(exc))
         finally:
             loop.run_until_complete(self.stop())
             loop.close()
@@ -183,10 +186,17 @@ class Server[C: Channel]:
         """Handle a newly connected client."""
         channel = self.channel_class(reader, writer, server=self)
         self.channels.append(channel)
+        addr = writer.get_extra_info("peername")
+
+        log.info(
+            "client_connected",
+            addr=f"{addr[0]}:{addr[1]}",
+            clients=len(self.channels),
+        )
 
         channel.send({"action": "connected"})
         channel.on_connect()
-        self.on_connect(channel, writer.get_extra_info("peername"))
+        self.on_connect(channel, addr)
 
         try:
             await asyncio.gather(
@@ -214,4 +224,9 @@ class Server[C: Channel]:
         """Remove a channel and notify via :meth:`on_disconnect`."""
         if channel in self.channels:
             self.channels.remove(channel)
+        log.info(
+            "client_disconnected",
+            addr=f"{channel.addr[0]}:{channel.addr[1]}",
+            clients=len(self.channels),
+        )
         self.on_disconnect(channel)
