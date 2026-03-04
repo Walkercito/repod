@@ -111,7 +111,7 @@ class TestRepodFormatter:
             args=(),
             exc_info=None,
         )
-        record._structured = {"host": "0.0.0.0", "port": 5071}  # type: ignore[attr-defined]
+        record._structured = {"host": "0.0.0.0", "port": 5071}
         output = formatter.format(record)
         assert "host" in output
         assert "0.0.0.0" in output

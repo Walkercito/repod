@@ -74,10 +74,8 @@ class RepodFormatter(logging.Formatter):
     ``record._structured`` (a :class:`dict`) when present.
     """
 
-    converter = time.localtime
-
     def format(self, record: logging.LogRecord) -> str:
-        ts = time.strftime("%H:%M:%S", self.converter(record.created))
+        ts = time.strftime("%H:%M:%S", time.localtime(record.created))
         level = record.levelname
         color, icon = _LEVEL_STYLES.get(level, ("\033[37m", "[?]"))
         event = record.getMessage().ljust(_EVENT_COL_WIDTH)
@@ -161,7 +159,7 @@ class StructuredLogger:
             (),
             None,
         )
-        record._structured = structured  # type: ignore[attr-defined]
+        record._structured = structured
         self._logger.handle(record)
 
 
