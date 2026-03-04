@@ -8,6 +8,7 @@ The `examples/` directory has working demos, each in its own folder:
 | `lag_time/` | Ping/pong round-trip latency measurement |
 | `whiteboard/` | Shared drawing canvas with color picker and smooth curves (pygame-ce) |
 | `tag/` | Multiplayer tag game with obstacles (raylib) |
+| `pong/` | Two-player pong with server-side physics (arcade) |
 
 ## Running the examples
 
@@ -49,3 +50,17 @@ python examples/tag/client.py
 
 !!! tip
     Requires `raylib-python-cffi`. Install with `uv sync --group examples` or `pip install raylib`.
+
+### Pong
+
+Two-player pong with authoritative server-side physics. The server handles ball movement, paddle collision, bounce angles, scoring, and win conditions (first to 5). The client is built with arcade and features colored paddles, a glow effect on the ball, and a dashed center line.
+
+- **Move**: W/S or Up/Down arrow keys
+
+```bash
+python examples/pong/server.py
+python examples/pong/client.py
+```
+
+!!! tip
+    Requires `arcade`. Install with `uv sync --group examples` or `pip install arcade`.

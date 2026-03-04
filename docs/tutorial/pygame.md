@@ -82,9 +82,53 @@ if __name__ == "__main__":
     Game().run()
 ```
 
+## Arcade
+
+Arcade uses a `Window` class with callback methods. Compose `ConnectionListener` alongside it and call `pump()` inside `on_update`:
+
+```python
+import arcade
+from repod import ConnectionListener
+
+
+class Game(arcade.Window):
+
+    def __init__(self) -> None:
+        super().__init__(800, 600, "My Game")
+        self.client = GameClient(self)
+
+    def on_update(self, delta_time: float) -> None:
+        self.client.pump()  # process network messages
+
+    def on_draw(self) -> None:
+        self.clear()
+        # ... draw game state ...
+
+
+class GameClient(ConnectionListener):
+
+    def __init__(self, game: Game) -> None:
+        self.game = game
+        self.connect("localhost", 5071)
+
+    def Network_connected(self, data: dict) -> None:
+        print("Connected to server!")
+
+    def Network_state(self, data: dict) -> None:
+        # Update game state from server
+        pass
+
+
+if __name__ == "__main__":
+    Game()
+    arcade.run()
+```
+
+See the full [pong example](../examples.md#pong) for a complete two-player game built with arcade.
+
 ## Other frameworks
 
-The pattern is the same for any framework with a main loop -- arcade, pyglet, Ursina, etc. Just call `pump()` once per frame:
+The pattern is the same for any framework with a main loop -- pyglet, Ursina, etc. Just call `pump()` once per frame:
 
 ```python
 while game_running:
