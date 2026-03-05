@@ -190,7 +190,7 @@ repod is free and open source. If you've found it useful, your support is apprec
 Crypto donations are also welcome:
 
 - **ETH:** `0x3B8dDE5AE6ac33F0F0884fAb40D74488d8426856`
-- **BNB:** `0x`
+- **BNB:** `0x3B8dDE5AE6ac33F0F0884fAb40D74488d8426856`
 - **SOL:** `48CekkeDX6cLABcarL2i4VM9Xz7Xk6ZkAVvbKr5KwLFz`
 - **BTC:** `bc1qhly9zf94ln8wed08d4xrr8q467ef44tx9et963`
 
