@@ -179,20 +179,19 @@ uv run pytest tests/ -v
 repod is free and open source. If you've found it useful, your support is appreciated -- but never required.
 
 <div align="center">
-  <a href="https://ko-fi.com/walkercito" target="_blank">
-    <img src="https://img.shields.io/static/v1?message=Ko-fi&logo=ko-fi&label=&color=F16061&logoColor=white&labelColor=&style=for-the-badge" height="35" alt="ko-fi logo" />
+  <a href="https://buymeacoffee.com/walkercito" target="_blank">
+    <img src="https://img.shields.io/badge/Buy_Me_a_Coffee-FFD400?style=for-the-badge&logo=buymeacoffee&logoColor=black" height="35" alt="Buy Me a Coffee" />
   </a>
-  <a href="https://paypal.me/walkercito" target="_blank">
-    <img src="https://img.shields.io/static/v1?message=PayPal&logo=paypal&label=&color=00457C&logoColor=white&labelColor=&style=for-the-badge" height="35" alt="paypal logo" />
+  <a href="https://ko-fi.com/walkercito" target="_blank">
+    <img src="https://img.shields.io/badge/Ko--fi-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white" height="35" alt="Ko-fi" />
+  </a>
+  <a href="https://www.paypal.me/KarlaMejiasArian" target="_blank">
+    <img src="https://img.shields.io/badge/PayPal-0079C1?style=for-the-badge&logo=paypal&logoColor=white" height="35" alt="PayPal" />
+  </a>
+  <a href="https://walkercitodev.vercel.app/donate" target="_blank">
+    <img src="https://img.shields.io/badge/Crypto-Donate-F7931A?style=for-the-badge&logo=bitcoin&logoColor=white" height="35" alt="Crypto donations" />
   </a>
 </div>
-
-Crypto donations are also welcome:
-
-- **ETH:** `0x3B8dDE5AE6ac33F0F0884fAb40D74488d8426856`
-- **BNB:** `0x3B8dDE5AE6ac33F0F0884fAb40D74488d8426856`
-- **SOL:** `48CekkeDX6cLABcarL2i4VM9Xz7Xk6ZkAVvbKr5KwLFz`
-- **BTC:** `bc1qhly9zf94ln8wed08d4xrr8q467ef44tx9et963`
 
 Thank you to everyone who has supported repod so far!
 
